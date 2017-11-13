@@ -1,0 +1,30 @@
+[package]
+authors = ["Alin Panaitiu <alin.p32@gmail.com>"]
+name = "safari_history"
+version = "0.1.0"
+
+[dependencies]
+error-chain = "0.11.0"
+fst = "0.2.3"
+fst-levenshtein = "0.1.0"
+fst-regex = "0.1.0"
+glob = "0.2.11"
+hyper = "0.11"
+iron = "0.5"
+iron-json-response = "0.5.1"
+log = "0.3.8"
+logger = "0.3.0"
+mime = "0.3"
+pretty_env_logger = "0.1.1"
+rayon = "0.9.0"
+rmp-serde = "0.13.7"
+router = "0.5"
+rusqlite = "0.12.0"
+serde = "1.0.19"
+url = "1.6.0"
+
+[dependencies.alfred]
+git = "https://github.com/alin23/alfred-rs"
+
+[dependencies.webicon]
+git = "https://github.com/alin23/rust-webicon"
