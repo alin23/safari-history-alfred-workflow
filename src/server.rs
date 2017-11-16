@@ -12,8 +12,11 @@ use logger::Logger;
 use router::Router;
 
 use errors::*;
+use util::cache_location;
 
 const SEARCH_TYPE_REGEX: &str = "regex";
+const GOOGLE_SEARCH_URL: &str = "https://google.com/search";
+const SEARCH_WITH_GOOGLE: &str = "Search with Google";
 
 
 pub struct Server<'a> {
@@ -58,7 +61,7 @@ impl<'a> Server<'a> {
         let search_type = router.find("search_type").unwrap_or("fuzzy");
 
         debug!("{} searching for {}...", search_type, query);
-        let items = match search_type {
+        let mut items = match search_type {
             SEARCH_TYPE_REGEX => {
 
                 let re = Regex::new(&format!(".*{}.*", query.replace("%20", r".*")))
@@ -70,6 +73,19 @@ impl<'a> Server<'a> {
                 self.get_items(lev)?
             }
         };
+        if items.is_empty() {
+            let google_url = format!("{}?q={}", GOOGLE_SEARCH_URL, query);
+            items = vec![
+                ::alfred::ItemBuilder::new(query.clone())
+                    .text_copy(query.clone())
+                    .text_large_type(query)
+                    .quicklook_url(google_url.clone())
+                    .arg(google_url)
+                    .subtitle(SEARCH_WITH_GOOGLE)
+                    .icon_path(cache_location().join("icons").join("google.com.ico").to_string_lossy().into_owned())
+                    .into_item()
+            ];
+        }
         let data = ::alfred::json::Builder::with_items(&items).into_json();
         Ok(Response::with(
             (::iron::status::Ok, JsonResponse::json(data)),
@@ -106,12 +122,15 @@ impl<'a> Server<'a> {
 
     fn get_alfred_item(&self, item: ::HistoryItem) -> ::alfred::Item<'a> {
         ::alfred::ItemBuilder::new(item.title.clone())
-            .autocomplete(item.title)
+            .autocomplete(item.title.clone())
             .uid(item.url.clone())
             .text_copy(item.url.clone())
             .text_large_type(item.url.clone())
             .quicklook_url(item.url.clone())
             .arg(item.url.clone())
+            .arg_mod(::alfred::Modifier::Command, format!("{}?q={}", GOOGLE_SEARCH_URL, item.title))
+            .subtitle_mod(::alfred::Modifier::Command, SEARCH_WITH_GOOGLE)
+            .icon_path_mod(::alfred::Modifier::Command, cache_location().join("icons").join("google.com.ico").to_string_lossy().into_owned())
             .subtitle(item.url)
             .icon_path(item.favicon)
             .variable("score", item.score.to_string())

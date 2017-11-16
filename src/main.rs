@@ -174,7 +174,7 @@ impl SafariHistory {
                             parsed_url.path(),
                             parsed_url.query().unwrap_or(""),
                             parsed_url.fragment().unwrap_or("")
-                        ),
+                        ).to_lowercase(),
                         score: score as u64,
                         favicon: DEFAULT_ICON.to_string(),
                     })
