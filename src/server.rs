@@ -16,7 +16,9 @@ use util::cache_location;
 
 const SEARCH_TYPE_REGEX: &str = "regex";
 const GOOGLE_SEARCH_URL: &str = "https://google.com/search";
+const GOOGLE_FEELING_LUCKY_URL: &str = "https://www.google.com/webhp?#btnI=I";
 const SEARCH_WITH_GOOGLE: &str = "Search with Google";
+const IM_FEELING_LUCKY: &str = "I'm feeling lucky!";
 
 
 pub struct Server<'a> {
@@ -78,9 +80,12 @@ impl<'a> Server<'a> {
             items = vec![
                 ::alfred::ItemBuilder::new(query.clone())
                     .text_copy(query.clone())
-                    .text_large_type(query)
+                    .text_large_type(query.clone())
                     .quicklook_url(google_url.clone())
                     .arg(google_url)
+                    .arg_mod(::alfred::Modifier::Option, format!("{}&q={}", GOOGLE_FEELING_LUCKY_URL, query))
+                    .subtitle_mod(::alfred::Modifier::Option, IM_FEELING_LUCKY)
+                    .icon_path_mod(::alfred::Modifier::Option, ::DEFAULT_ICON.to_string())
                     .subtitle(SEARCH_WITH_GOOGLE)
                     .icon_path(cache_location().join("icons").join("google.com.ico").to_string_lossy().into_owned())
                     .into_item()
@@ -128,9 +133,12 @@ impl<'a> Server<'a> {
             .text_large_type(item.url.clone())
             .quicklook_url(item.url.clone())
             .arg(item.url.clone())
-            .arg_mod(::alfred::Modifier::Command, format!("{}?q={}", GOOGLE_SEARCH_URL, item.title))
-            .subtitle_mod(::alfred::Modifier::Command, SEARCH_WITH_GOOGLE)
-            .icon_path_mod(::alfred::Modifier::Command, cache_location().join("icons").join("google.com.ico").to_string_lossy().into_owned())
+            // .arg_mod(::alfred::Modifier::Command, format!("{}?q={}", GOOGLE_SEARCH_URL, item.title))
+            // .subtitle_mod(::alfred::Modifier::Command, SEARCH_WITH_GOOGLE)
+            // .icon_path_mod(::alfred::Modifier::Command, cache_location().join("icons").join("google.com.ico").to_string_lossy().into_owned())
+            // .arg_mod(::alfred::Modifier::Option, format!("{}&q={}", GOOGLE_FEELING_LUCKY_URL, item.title))
+            // .subtitle_mod(::alfred::Modifier::Option, IM_FEELING_LUCKY)
+            // .icon_path_mod(::alfred::Modifier::Option, ::DEFAULT_ICON.to_string())
             .subtitle(item.url)
             .icon_path(item.favicon)
             .variable("score", item.score.to_string())
